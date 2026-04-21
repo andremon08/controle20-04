@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Orçamentário — Câmara Municipal de Curitiba</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo-area">
+            <svg class="logo-cmc" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+              <path d="M362.99,401.21v301.16h35.62v-188.29c.93-18.5,16.65-33.77,35.62-33.77s34.7,14.8,35.62,33.77v188.29h18.04v-187.82c.93-18.5,16.65-33.77,35.62-33.77s34.7,14.8,35.62,33.77v187.82h18.04v-188.29c.92-18.5,16.65-33.77,35.62-33.77s34.7,14.8,35.62,33.77v188.29h35.62v-301.16h-321.06,0Z"/>
+              <path d="M184.88,401.21v301.16h43.49v-222.06c.93-22.21,16.65-39.79,36.09-39.79s35.16,17.58,36.55,39.79v222.06h43.49v-301.16h-160.07s.46,0,.46,0Z"/>
+              <path d="M701.63,401.21v301.16h43.49v-222.06c.93-22.21,16.65-39.79,36.08-39.79s35.16,17.58,36.55,39.79v222.06h43.49v-301.16h-160.07.46,0Z"/>
+              <path d="M878.81,326.73v-56.44h-183.2l-41.64,56.44h-261.84l-42.1-56.44h-183.2v56.44h-42.1l42.1,55.98h711.97l42.1-55.98h-42.1Z"/>
+              <path d="M862.16,719.49H184.88v90.67h677.27v-90.67ZM326.45,722.27h393.69v25.45h-393.69v-25.45h0ZM279.26,750.03h488.06v27.76h-488.06s0-27.76,0-27.76ZM814.97,807.86H232.07v-27.76h582.9v27.76Z"/>
+              <g>
+                <path d="M1187.38,547.86c-9.25,0-17.58-1.39-25.44-4.16-7.86-2.78-14.8-6.94-20.35-12.49-5.55-5.55-10.18-11.56-13.42-18.97-3.24-7.4-4.63-15.73-4.63-24.52s1.39-17.12,4.63-24.52c3.24-7.4,7.86-13.88,13.42-18.97,5.55-5.55,12.49-9.71,20.35-12.49,7.86-2.78,16.19-4.17,25.44-4.17s21.28,1.85,30.07,6.01c8.79,4.16,16.19,9.71,21.74,17.12l-24.52,21.74c-3.24-4.17-6.94-7.4-11.1-9.72s-8.79-3.7-13.88-3.7-7.86.46-11.1,1.85c-3.24,1.39-6.01,3.24-8.33,5.55-2.31,2.31-4.16,5.55-5.55,9.25-1.39,3.7-1.85,7.4-1.85,12.03s.46,8.33,1.85,12.03c1.39,3.7,3.24,6.48,5.55,9.25,2.31,2.31,5.09,4.63,8.33,5.55,3.24.92,6.94,1.85,11.1,1.85s9.72-1.39,13.88-3.7c4.16-2.31,7.86-5.55,11.1-9.71l24.52,21.74c-5.55,7.4-12.95,12.95-21.74,17.12-8.79,4.16-18.97,6.01-30.07,6.01h0Z"/>
+                <path d="M1278.05,546.94c-7.4,0-13.42-1.39-18.5-3.7-5.09-2.31-8.79-6.01-11.1-10.18-2.31-4.16-3.7-8.79-3.7-13.88s1.39-10.64,4.63-14.8c2.78-4.16,7.4-6.94,13.42-9.25s13.88-3.24,23.13-3.24h18.97v18.04h-12.95c-4.16,0-6.94.46-8.79,1.85-1.85,1.39-2.78,3.24-2.78,5.55s.93,3.7,2.31,5.09c1.39,1.39,3.7,2.31,6.48,2.31s5.09-.93,6.94-2.31c2.31-1.39,3.7-3.7,4.63-6.48l4.63,11.1c-1.39,6.94-4.63,11.57-9.25,14.81-4.63,3.24-10.64,5.09-18.5,5.09h.46ZM1303.49,545.09v-16.19l-2.78-4.16v-30.07c0-4.63-1.39-7.86-4.16-10.18-2.78-2.31-6.94-3.7-12.95-3.7s-8.33.46-12.49,1.85c-4.16,1.39-7.86,2.78-10.64,5.09l-12.03-24.52c5.09-3.24,11.57-6.01,18.97-7.4,7.4-1.85,14.34-2.78,21.74-2.78,15.73,0,27.29,3.7,36.09,10.18,8.33,6.94,12.95,18.04,12.95,32.85v48.57h-34.7v.46h0ZM1256.77,445.16l21.28-26.37h31.46l21.28,26.37h-23.13l-23.59-21.28h18.97l-23.59,21.28h-23.13.46Z"/>
+                <path d="M1473.74,453.03c6.94,0,12.95,1.39,18.5,4.16s9.72,6.94,12.95,12.95c3.24,6.01,4.63,13.88,4.63,23.13v51.35h-37.47v-44.88c0-5.55-.93-9.71-2.78-12.03-1.85-2.31-4.16-3.7-7.4-3.7s-4.16.46-6.01,1.85c-1.85,1.39-3.24,2.78-4.17,5.09-.92,2.31-1.39,5.55-1.39,9.71v43.95h-37.47v-44.88c0-5.55-.93-9.71-2.78-12.03-1.85-2.31-4.16-3.7-7.4-3.7s-4.16.46-6.01,1.85c-1.85,1.39-3.24,2.78-4.16,5.09-.92,2.31-1.39,5.55-1.39,9.71v43.95h-37.47v-90.21h35.62v25.91l-7.4-7.4c3.24-6.94,7.86-12.03,13.88-15.27,5.55-3.24,12.03-5.09,18.97-5.09s14.81,2.31,20.82,6.01c6.01,4.16,10.18,10.64,12.03,19.43l-11.57-1.85c3.24-7.4,8.33-13.42,14.34-17.58,6.48-4.16,13.42-6.48,22.21-6.48l.93.93h0Z"/>
+                <path d="M1554.69,546.94c-7.4,0-13.42-1.39-18.5-3.7-5.09-2.31-8.79-6.01-11.1-10.18-2.78-4.16-3.7-8.79-3.7-13.88s1.39-10.64,4.63-14.8c3.24-4.16,7.4-6.94,13.42-9.25,6.01-2.31,13.88-3.24,23.13-3.24h18.97v18.04h-12.95c-4.17,0-6.94.46-8.79,1.85-1.85,1.39-2.78,3.24-2.78,5.55s.92,3.7,2.31,5.09c1.39,1.39,3.7,2.31,6.48,2.31s5.09-.93,6.94-2.31c2.31-1.39,3.7-3.7,4.63-6.48l4.63,11.1c-1.39,6.94-4.63,11.57-9.25,14.81-4.63,3.24-10.64,5.09-18.5,5.09h.46ZM1580.14,545.09v-16.19l-2.78-4.16v-30.07c0-4.63-1.39-7.86-4.16-10.18-2.78-2.31-6.94-3.7-12.95-3.7s-8.33.46-12.49,1.85c-4.17,1.39-7.86,2.78-10.64,5.09l-12.03-24.52c5.09-3.24,11.57-6.01,18.97-7.4,7.4-1.85,14.34-2.78,21.74-2.78,15.73,0,27.29,3.7,36.09,10.18,8.33,6.94,12.95,18.04,12.95,32.85v48.57h-34.7v.46h0Z"/>
+                <path d="M1631.03,545.55v-90.67h35.62v27.29l-5.55-7.86c2.78-6.94,6.94-12.49,13.42-15.73,6.01-3.7,13.42-5.09,21.74-5.09v32.85c-1.85,0-3.24,0-4.16-.46h-3.7c-5.55,0-10.18,1.39-13.88,4.16-3.7,2.78-5.55,7.86-5.55,15.27v40.25h-37.93,0Z"/>
+                <path d="M1735.12,546.94c-7.4,0-13.42-1.39-18.5-3.7-5.09-2.31-8.79-6.01-11.1-10.18-2.78-4.16-3.7-8.79-3.7-13.88s1.39-10.64,4.63-14.8c3.24-4.16,7.4-6.94,13.42-9.25s13.88-3.24,23.13-3.24h18.97v18.04h-12.95c-4.16,0-6.94.46-8.79,1.85-1.85,1.39-2.78,3.24-2.78,5.55s.93,3.7,2.31,5.09c1.39,1.39,3.7,2.31,6.48,2.31s5.09-.93,6.94-2.31c2.31-1.39,3.7-3.7,4.63-6.48l4.63,11.1c-1.39,6.94-4.63,11.57-9.25,14.81-4.63,3.24-10.64,5.09-18.5,5.09h.46ZM1760.56,545.09v-16.19l-2.78-4.16v-30.07c0-4.63-1.39-7.86-4.16-10.18-2.78-2.31-6.94-3.7-12.95-3.7s-8.33.46-12.49,1.85c-4.16,1.39-7.86,2.78-10.64,5.09l-12.03-24.52c5.09-3.24,11.57-6.01,18.97-7.4,7.4-1.85,14.34-2.78,21.74-2.78,15.73,0,27.29,3.7,36.09,10.18,8.33,6.94,12.95,18.04,12.95,32.85v48.57h-34.7v.46h0Z"/>
+              </g>
+              <g>
+                <path d="M1162.39,661.21c-5.09,0-10.18-1.39-14.34-3.7-4.63-2.31-7.86-6.01-10.64-10.64-2.78-4.63-4.16-10.18-4.16-16.65s1.39-12.03,4.16-16.65c2.78-4.63,6.01-8.33,10.64-10.64,4.63-2.31,9.25-3.7,14.34-3.7s9.72.93,12.95,3.24c3.24,2.31,6.01,5.55,7.4,10.18,1.85,4.63,2.31,10.18,2.31,17.58s-.93,12.95-2.31,17.58c-1.39,4.63-4.16,7.87-7.4,10.18-3.24,2.31-7.86,3.24-13.42,3.24h.46ZM1167.95,641.78c1.85,0,3.7,0,5.09-1.39,1.39-1.39,2.78-2.31,3.7-4.16.93-1.85,1.39-4.17,1.39-6.48s0-4.63-1.39-6.48c-.92-1.85-1.85-3.24-3.7-3.7-1.85-.46-3.24-1.39-5.09-1.39s-3.7,0-5.09,1.39-2.78,2.31-3.7,3.7c-.93,1.85-1.39,3.7-1.39,6.48s.46,4.63,1.39,6.48c.93,1.85,1.85,3.24,3.7,4.16,1.85.93,3.24,1.39,5.09,1.39ZM1178.59,660.28v-30.07l-1.39-22.21v-29.61h24.98v81.42h-23.59v.46h0Z"/>
+                <path d="M1246.59,661.21c-7.4,0-13.88-1.39-18.97-4.16-5.55-2.78-9.71-6.48-12.49-11.1-2.78-4.63-4.63-10.18-4.63-16.19s1.39-11.57,4.63-16.19c2.78-4.63,6.94-8.33,12.03-11.1,5.09-2.78,11.1-4.16,17.58-4.16s11.57.92,16.65,3.7c5.09,2.78,9.25,6.01,12.03,10.64,3.24,4.63,4.63,10.18,4.63,17.12s0,1.85,0,2.78v2.78h-46.26v-12.03h32.85l-9.25,3.24c0-2.31,0-4.16-1.39-6.01-.92-1.85-1.85-2.78-3.7-3.7-1.85-.93-3.24-1.39-5.09-1.39s-3.7,0-5.09,1.39-2.78,2.31-3.7,3.7c-.93,1.85-1.39,3.7-1.39,6.01v3.7c0,2.31.46,4.63,1.39,6.48s2.31,3.24,4.63,4.16c2.31.93,4.17,1.39,6.94,1.39s5.09,0,6.94-.92c1.85-.93,3.7-1.85,5.55-3.24l12.95,12.95c-2.78,3.24-6.48,5.55-10.64,7.4-4.16,1.85-9.25,2.31-15.27,2.31h-.92v.46h0Z"/>
+                <path d="M1358.54,662.13c-6.01,0-12.03-.92-17.12-2.78-5.09-1.85-9.71-4.63-13.42-8.33-3.7-3.7-6.94-7.86-8.79-12.95-2.31-5.09-3.24-10.18-3.24-16.19s.92-11.57,3.24-16.19c2.31-4.63,5.09-9.25,8.79-12.95,3.7-3.7,8.33-6.47,13.42-8.33,5.09-1.85,11.1-2.78,17.12-2.78s14.34,1.39,19.89,3.7c6.01,2.78,10.64,6.48,14.34,11.57l-16.19,14.8c-2.31-2.78-4.63-5.09-7.4-6.48s-6.01-2.31-9.25-2.31-5.09,0-7.4,1.39c-2.31,1.39-4.17,2.31-5.55,3.7-1.39,1.85-2.78,3.7-3.7,6.01-.92,2.31-1.39,5.09-1.39,7.86s0,5.55,1.39,7.86c.93,2.31,2.31,4.63,3.7,6.01,1.39,1.85,3.7,2.78,5.55,3.7,2.31.93,4.63,1.39,7.4,1.39s6.48-.93,9.25-2.31c2.78-1.39,5.09-3.7,7.4-6.48l16.19,14.81c-3.7,5.09-8.79,8.79-14.34,11.57-5.55,2.78-12.49,4.16-19.89,4.16v-.46h0Z"/>
+                <path d="M1424.7,661.21c-4.63,0-9.25-.93-12.95-2.78-3.7-1.85-6.94-5.09-9.25-9.25-2.31-4.17-3.24-9.25-3.24-16.19v-33.31h24.98v28.68c0,4.16.46,7.4,1.85,8.79,1.39,1.39,3.24,2.31,5.55,2.31s2.78,0,4.16-.93c1.39-.92,2.31-1.85,3.24-3.7.92-1.85,1.39-4.17,1.39-6.94v-28.22h24.98v60.14h-23.59v-17.58l4.63,4.63c-2.31,4.63-5.09,8.33-9.25,10.18-4.16,1.85-8.33,3.24-12.49,3.24v.93h0Z"/>
+                <path d="M1476.51,660.74v-60.6h23.59v18.04l-3.7-5.09c1.85-4.63,4.63-8.33,8.79-10.64s8.79-3.7,14.34-3.7v22.21h-5.55c-3.7,0-6.94.93-9.25,2.78-2.31,1.85-3.7,5.09-3.7,10.18v26.83h-24.98.46Z"/>
+                <path d="M1538.97,595.51c-4.63,0-8.33-1.39-11.1-3.7-2.78-2.31-4.16-5.55-4.16-9.25s1.39-6.48,4.16-9.25c2.78-2.31,6.48-3.7,11.1-3.7s8.33.93,11.1,3.24c2.78,2.31,4.17,5.09,4.17,8.79s-1.39,6.94-4.17,9.25-6.48,3.7-11.1,3.7v.93h0ZM1526.47,660.28v-60.14h24.98v60.14h-24.98Z"/>
+                <path d="M1556.54,621.42v-18.04h45.34v18.04h-45.34ZM1591.24,661.21c-8.33,0-14.8-1.85-19.43-6.01s-6.94-10.18-6.94-18.5v-50.42h24.98v49.96c0,1.85.46,3.24,1.39,4.16s2.31,1.39,3.7,1.39c2.31,0,4.16,0,5.55-1.85l6.01,17.12c-1.85.92-4.16,1.85-6.94,2.31-2.78.46-5.55.93-8.33.93v.93h0Z"/>
+                <path d="M1625.01,595.51c-4.63,0-8.33-1.39-11.1-3.7s-4.16-5.55-4.16-9.25,1.39-6.48,4.16-9.25c2.78-2.31,6.48-3.7,11.1-3.7s8.33.93,11.1,3.24c2.78,2.31,4.16,5.09,4.16,8.79s-1.39,6.94-4.16,9.25c-2.78,2.31-6.48,3.7-11.1,3.7v.93h0ZM1612.98,660.28v-60.14h24.98v60.14h-24.98Z"/>
+                <path d="M1648.61,660.28v-81.42h24.98v29.61l-.93,22.21v30.53h-23.59v-.93h-.46ZM1688.85,661.21c-5.55,0-9.71-.93-13.42-3.24-3.24-2.31-6.01-5.55-7.4-10.18-1.39-4.63-2.31-10.64-2.31-17.58s.92-12.95,2.31-17.58c1.39-4.63,4.17-7.86,7.4-10.18,3.24-2.31,7.86-3.24,12.95-3.24s10.18,1.39,14.34,3.7c4.16,2.31,7.86,6.01,10.64,10.64,2.78,4.63,4.16,10.18,4.16,16.65s-1.39,12.03-4.16,16.65c-2.78,4.63-6.01,8.33-10.64,10.64-4.63,2.31-9.25,3.7-14.34,3.7h.46ZM1682.84,641.78c1.85,0,3.7,0,5.09-1.39s2.78-2.31,3.7-4.16c.93-1.85,1.39-4.17,1.39-6.48s-.46-4.63-1.39-6.48c-.92-1.85-1.85-3.24-3.7-3.7-1.39-.93-3.24-1.39-5.09-1.39s-3.7,0-5.09,1.39-2.78,2.31-3.7,3.7c-.93,1.85-1.39,3.7-1.39,6.48s0,4.63,1.39,6.48c.93,1.85,1.85,3.24,3.7,4.16,1.39.93,3.24,1.39,5.09,1.39Z"/>
+                <path d="M1744.83,661.21c-5.09,0-8.79-.93-12.49-2.31-3.24-1.85-5.55-3.7-7.4-6.94-1.85-2.78-2.31-6.01-2.31-9.25s.93-6.94,2.78-9.72c1.85-2.78,5.09-4.63,9.25-6.01,4.16-1.39,9.25-2.31,15.27-2.31h12.49v12.03h-8.79c-2.78,0-4.63,0-5.55,1.39-.93,1.39-1.85,2.31-1.85,3.7s.46,2.31,1.39,3.7,2.31,1.39,4.16,1.39,3.24,0,4.63-1.39,2.31-2.31,3.24-4.16l3.24,7.4c-.93,4.63-2.78,7.86-6.01,10.18-3.24,2.31-7.4,3.24-12.49,3.24v-.92h.46,0ZM1761.95,660.28v-10.64l-1.85-2.78v-20.36c0-2.78-.93-5.09-2.78-6.94-1.85-1.85-4.63-2.31-8.79-2.31s-5.55,0-8.33,1.39c-2.78,1.39-5.09,1.85-6.94,3.7l-7.86-16.19c3.7-2.31,7.86-3.7,12.49-5.09,4.63-1.39,9.71-1.85,14.34-1.85,10.18,0,18.5,2.31,24.06,6.94,5.55,4.63,8.33,12.03,8.33,22.21v32.38h-23.13l.46-.46Z"/>
+              </g>
+              <path d="M1021.76,265.67c-2.78,0-4.63,2.31-4.63,4.63v539.41c0,2.78,2.31,4.63,4.63,4.63s4.63-2.31,4.63-4.63V270.29c0-2.78-2.31-4.63-4.63-4.63Z"/>
+            </svg>
+        </div>
+
+        <div class="sidebar-divisor"></div>
+
+        <nav class="sidebar-nav">
+            <p class="nav-label">Sistema</p>
+            <a href="#" class="nav-item ativo" id="navPainel" onclick="navegarPara('painel')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                Painel Geral
+            </a>
+            <a href="#" class="nav-item" id="navCalculadora" onclick="navegarPara('calculadora')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+                Calculadora
+            </a>
+            <a href="#" class="nav-item" id="navRelatorios" onclick="navegarPara('relatorios')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Relatórios
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="status-dot"></div>
+            <span class="status-txt" id="statusConexao">Conectando...</span>
+        </div>
+    </aside>
+
+    <!-- Conteúdo principal -->
+    <main class="conteudo-principal">
+
+        <header class="topbar">
+            <div class="topbar-esq">
+                <h1>Painel Orçamentário</h1>
+                <p>Câmara Municipal de Curitiba — Controle de Lotações</p>
+            </div>
+            <div class="topbar-dir" id="topbarBadges"></div>
+        </header>
+
+        <!-- Filtros na área principal -->
+        <div class="filtros-principais">
+            <div class="filtro-principal-grupo">
+                <label for="mesSelect">Mês de referência</label>
+                <div class="select-wrap">
+                    <select id="mesSelect"><option value="">Selecione o mês...</option></select>
+                    <svg class="chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+            </div>
+            <div class="filtro-principal-grupo">
+                <label for="gabineteSelect">Lotação</label>
+                <div class="select-wrap">
+                    <select id="gabineteSelect"><option value="">Selecione a lotação...</option></select>
+                    <svg class="chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estado inicial -->
+        <section id="estadoInicial" class="estado-inicial">
+            <div class="estado-icone">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <h2>Selecione o mês e a lotação</h2>
+            <p>Os dados serão carregados automaticamente após a seleção acima.</p>
+        </section>
+
+        <!-- Painel Gabinete de Vereador -->
+        <section id="painelVereador" class="escondido painel">
+
+            <div class="grid-cards">
+                <div class="card">
+                    <div class="card-label">Verba Total</div>
+                    <div class="card-valor" id="vVerbaTotal">—</div>
+                    <div class="card-sub">Teto legal do gabinete</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Verba Utilizada</div>
+                    <div class="card-valor" id="vVerbaUtil">—</div>
+                    <div class="card-sub" id="vVerbaUtilSub">soma dos salários</div>
+                </div>
+                <div class="card card-saldo">
+                    <div class="card-label">Saldo Disponível</div>
+                    <div class="card-valor" id="vSaldo">—</div>
+                    <div class="card-sub" id="vSaldoSub">—</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Servidores</div>
+                    <div class="card-valor" id="vServidores">—</div>
+                    <div class="card-sub" id="vServidoresSub">—</div>
+                </div>
+            </div>
+
+            <div class="progresso-card">
+                <div class="progresso-header">
+                    <span>Uso do teto orçamentário</span>
+                    <span id="vProgressoPct" class="progresso-pct">0%</span>
+                </div>
+                <div class="progresso-trilha">
+                    <div id="vProgressoFill" class="progresso-fill"></div>
+                </div>
+                <div class="progresso-limite">
+                    <span>R$ 0,00</span>
+                    <span>R$ 92.998,45</span>
+                </div>
+            </div>
+
+            <div id="alertasVereador" class="alertas-area"></div>
+
+            <!-- Tabela servidores (acima da estrutura) -->
+            <div class="secao-header">
+                <h2 class="secao-titulo">Servidores Lotados</h2>
+                <div class="export-botoes">
+                    <button class="btn-export btn-pdf" onclick="exportarPDF()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        PDF
+                    </button>
+                    <button class="btn-export btn-xlsx" onclick="exportarXLSX()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                        XLSX
+                    </button>
+                    <button class="btn-export btn-csv" onclick="exportarCSV()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+                        CSV
+                    </button>
+                </div>
+            </div>
+            <div class="tabela-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Matrícula</th>
+                            <th>Nome do Servidor</th>
+                            <th>Cargo</th>
+                            <th class="col-salario">Salário</th>
+                            <th>Admissão</th>
+                            <th>Exoneração</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoTabelaVereador"></tbody>
+                    <tfoot id="rodapeTabelaVereador"></tfoot>
+                </table>
+            </div>
+
+            <!-- Estrutura do gabinete com cards -->
+            <div class="secao-header" style="margin-top:1.75rem">
+                <h2 class="secao-titulo">Estrutura do Gabinete</h2>
+                <span class="secao-badge" id="vEstruturaResumo"></span>
+            </div>
+            <div class="grade-bonecos" id="gradeEstrutura"></div>
+
+            <!-- Sugestão de Composição -->
+            <div id="secaoSugestao" class="escondido">
+                <div class="secao-header" style="margin-top:1.75rem">
+                    <h2 class="secao-titulo">Sugestão de Composição</h2>
+                    <span class="secao-badge" id="sugestaoResumo"></span>
+                </div>
+                <div id="sugestaoConteudo">
+                    <div class="sugestao-filtro-wrap" id="sugestaoFiltroWrap" style="display:none">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="sugestaoFiltro" class="sugestao-filtro" placeholder="Filtre por cargo - Ex: CC-5 ou CC-5, CC-9 para múltiplos">
+                    </div>
+                    <div id="sugestaoIntro"></div>
+                    <div id="sugestaoGrid" class="sugestao-grid"></div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Painel Lotação Especial -->
+        <section id="painelEspecial" class="escondido painel">
+
+            <div id="alertasEspecial" class="alertas-area"></div>
+
+            <!-- Tabela de servidores primeiro -->
+            <div class="secao-header">
+                <h2 class="secao-titulo">Servidores Lotados</h2>
+                <div class="responsavel-destaque" id="eResponsavelDestaque" style="display:none">
+                    <span class="responsavel-label">Vereador Responsável:</span>
+                    <span class="responsavel-nome" id="eResponsavel"></span>
+                </div>
+                <div class="export-botoes">
+                    <button class="btn-export btn-pdf" onclick="exportarPDF()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        PDF
+                    </button>
+                    <button class="btn-export btn-xlsx" onclick="exportarXLSX()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                        XLSX
+                    </button>
+                    <button class="btn-export btn-csv" onclick="exportarCSV()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+                        CSV
+                    </button>
+                </div>
+            </div>
+            <div class="tabela-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Matrícula</th>
+                            <th>Nome do Servidor</th>
+                            <th>Cargo (CC)</th>
+                            <th class="col-salario">Salário</th>
+                            <th>Admissão</th>
+                            <th>Exoneração</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoTabelaEspecial"></tbody>
+                </table>
+            </div>
+
+            <!-- Estrutura da lotação com cards -->
+            <div class="secao-header" style="margin-top:1.75rem">
+                <h2 class="secao-titulo">Estrutura da Lotação</h2>
+                <span class="secao-badge" id="eEstruturaResumo"></span>
+            </div>
+            <div class="grade-bonecos" id="gradeEspecial"></div>
+
+        </section>
+
+    </main>
+
+    <!-- Página Calculadora de Composição -->
+    <main class="conteudo-principal escondido" id="paginaCalculadora">
+
+        <header class="topbar">
+            <div class="topbar-esq">
+                <h1>Calculadora de Composição</h1>
+                <p>Simule a composição de um gabinete respeitando os limites legais</p>
+            </div>
+        </header>
+
+        <div class="calc-container">
+
+            <!-- Campo do vereador -->
+            <div class="calc-vereador-wrap">
+                <label class="calc-label" for="calcVereador">Nome do(a) Vereador(a)</label>
+                <input type="text" id="calcVereador" class="calc-input-nome" placeholder="Digite o nome completo do(a) vereador(a)...">
+            </div>
+
+            <!-- Cards de indicadores -->
+            <div class="calc-indicadores">
+                <div class="calc-ind-card">
+                    <div class="calc-ind-label">Vagas utilizadas</div>
+                    <div class="calc-ind-valor" id="calcVagasUsadas">1 / 9</div>
+                    <div class="calc-ind-bar-wrap"><div class="calc-ind-bar" id="calcBarVagas" style="width:11%"></div></div>
+                    <div class="calc-ind-sub" id="calcVagasSub">8 vagas disponíveis</div>
+                </div>
+                <div class="calc-ind-card">
+                    <div class="calc-ind-label">Verba utilizada</div>
+                    <div class="calc-ind-valor" id="calcVerbaUsada">R$ 0,00</div>
+                    <div class="calc-ind-bar-wrap"><div class="calc-ind-bar" id="calcBarVerba" style="width:0%"></div></div>
+                    <div class="calc-ind-sub" id="calcVerbaSub">de R$ 92.998,45</div>
+                </div>
+                <div class="calc-ind-card calc-ind-saldo" id="calcCardSaldo">
+                    <div class="calc-ind-label">Saldo disponível</div>
+                    <div class="calc-ind-valor" id="calcSaldo">R$ 92.998,45</div>
+                    <div class="calc-ind-sub" id="calcSaldoSub">dentro do teto legal</div>
+                </div>
+                <div class="calc-ind-card" id="calcCardStatus">
+                    <div class="calc-ind-label">Status</div>
+                    <div class="calc-ind-valor calc-status-ok" id="calcStatus">✓ Válido</div>
+                    <div class="calc-ind-sub" id="calcStatusSub">CC-1 obrigatório incluso</div>
+                </div>
+            </div>
+
+            <!-- Grade de seleção de CCs -->
+            <div class="calc-secao-titulo">Selecione os cargos</div>
+            <div class="calc-grade" id="calcGrade"></div>
+
+            <!-- Botão gerar formulário -->
+            <button class="calc-btn-gerar" id="calcBtnGerar" onclick="gerarFormularioPDF()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Gerar Formulário de Composição
+            </button>
+
+        </div>
+
+    </main>
+
+    
+    <main class="conteudo-principal escondido" id="paginaRelatorios">
+
+        <header class="topbar">
+            <div class="topbar-esq">
+                <h1>Relatórios</h1>
+                <p>Selecione uma ou mais lotações e gere relatórios consolidados</p>
+            </div>
+        </header>
+
+        <div class="relat-container">
+
+            <!-- Barra de busca -->
+            <div class="relat-busca-wrap">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="relatBusca" class="relat-busca" placeholder="Digite para filtrar lotações...">
+                <button class="relat-busca-clear" id="relatBuscaClear" onclick="limparBuscaRelat()" title="Limpar">✕</button>
+            </div>
+
+            <!-- Seleção de seções -->
+            <div class="relat-secoes">
+                <button class="relat-secao-btn ativo" id="btnSecaoServs" onclick="toggleSecao('servs')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                    Relação de Servidores
+                </button>
+                <button class="relat-secao-btn ativo" id="btnSecaoComp" onclick="toggleSecao('comp')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                    Composição da Lotação
+                </button>
+            </div>
+
+            <!-- Checklist de lotações -->
+            <div class="relat-lista-wrap">
+                <div class="relat-lista-header">
+                    <span id="relatContador">0 selecionadas</span>
+                    <button class="relat-link" onclick="selecionarTodasRelat()">Selecionar todas</button>
+                    <button class="relat-link" onclick="limparSelecaoRelat()">Limpar seleção</button>
+                </div>
+                <div class="relat-lista" id="relatLista"></div>
+            </div>
+
+            <!-- Botões de exportação -->
+            <div class="relat-acoes">
+                <span class="relat-acoes-label">Exportar selecionadas:</span>
+                <button class="btn-export btn-pdf" onclick="relatExportarPDF()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    PDF
+                </button>
+                <button class="btn-export btn-xlsx" onclick="relatExportarXLSX()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                    XLSX
+                </button>
+                <button class="btn-export btn-csv" onclick="relatExportarCSV()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+                    CSV
+                </button>
+            </div>
+
+        </div>
+
+    </main>
+
+    <input type="hidden" id="logoBase64" value="data:image/png;base64,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">
+    <script src="script.js"></script>
+</body>
+</html>
